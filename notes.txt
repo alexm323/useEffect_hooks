@@ -1,0 +1,52 @@
+Intro to useEffect
+______________________________________________
+Going to cover two very important hooks 
+
+describe and understand useEffect and useRef 
+
+hooks in general, 
+useX 
+we can later define custom hooks 
+but its a pattern that is followed, it says that something is a hook 
+
+under the basic hooks section there is a hook called useEffect 
+
+we can use useEffect to run sideeffects 
+
+things like fetching data from an api 
+starting a timer 
+manually changing the DOM 
+
+
+______________________________________________
+useEffect callback
+______________________________________________
+
+______________________________________________
+useEffect empty array
+______________________________________________
+
+______________________________________________
+useEffect AJAX calls
+______________________________________________
+
+______________________________________________
+Prop Changes and Effects
+______________________________________________
+
+______________________________________________
+useEffect profile search
+______________________________________________
+
+______________________________________________
+useEffect cleanup
+______________________________________________
+
+______________________________________________
+useRef
+______________________________________________
+
+______________________________________________
+useRef Continued
+______________________________________________
+
