@@ -13,34 +13,154 @@ under the basic hooks section there is a hook called useEffect
 
 we can use useEffect to run sideeffects 
 
+
+
+what are some examples of side effects?
+
 things like fetching data from an api 
 starting a timer 
 manually changing the DOM 
+subscribing to something 
+connecting to a web socket 
+
+with the way we have our components so far we dont have a way to tell our components when to run 
+
+if we tried to make a simple timer that uses a set interval and state everytime there is a new rerender it is going to create a new interval 
+
+the very act of calling setSecond is going to cause continuous rerendering 
+
+what we really want is to be able to run a timer once 
+
+I want to be able to call setInterval once and let it run 
+
+instead of setting up an interval 
+what if we were requesting data from an API?
+
+if we were getting data from an API 
+
+calling that function will cause multiple rerenders so it will keep calling data from the api 
+
+if we want just one thing that we want to watch we can use the useEffect hook 
+
+with hooks we now use useEffect instead of in a class based component where we would write specific methods to do that 
 
 
 ______________________________________________
 useEffect callback
 ______________________________________________
+how do we actually use it? 
+
+brief overview of the args it accepts:
+2 arguments 
+
+(theSideEffect,theWayOfSpecifyingWHen YouWantItToRun)
+
+useEffect will run after the firs rerenderuseEffect will run after all rerender by default 
+useEffect accepts a callback function as its first argument 
+useEffect returns undefined or a function 
+-if you return a function
+
+we are going to be changing the doc title to have a certain number of exclamation points 
+
+we can do something like this in normal javascript using 
+
+document.title = `His${'!'.repeat(num)}`
+
+and this will put an exclamation point as many times in the title as we want 
+
+repeat is a newer method 
+
+now we are going to use the useEffect hook 
+
+    useEffect(()=>{
+        document.title = `Hi${'!'.repeat(num)}`
+    })
+
+we end up with this and the main difference is that now we are going to be running the callback inside of useEffect only after the component renders 
+
+it does not seem like a big difference but when this becomes important is when we add in the second argument which is WHEN to run the callback like if we only wanted it to run on the first render 
+
+
 
 ______________________________________________
 useEffect empty array
 ______________________________________________
+when we pass in a second argument , this is how we tell react what our side effect depends on 
+
+like if we want it to run only after something else changes 
+
+you can tell react to skip applying an effect if certain values havent changed between rerenders 
+
+the second argument is an array, contains dependencies 
+
+things that you want your component to run 
+
+if you pass in an empty array it tells react that it doesnt depend on props or state 
+
+lets go back to the timer 
+
+we add in useeffect and now the component does not go crazy when we put in the dependency of an empty array because we are not updating and running the setInterval code over and over 
+
+remember that the array is just the dependencies so that when we have an empty one that means we do not want the code inside useEffect to run after the first time the component renders 
+
 
 ______________________________________________
 useEffect AJAX calls
 ______________________________________________
 
+fetching data on initial renders 
+
+usually there is info that we want to get for a component 
+
+it is very common to just fetch data on an initial render 
+
+sometimes we would show a loading screen or something and once the api call finishes then we will display data once the call is finished
+
+this is how we should be making api calls , inside of use effect 
+
+if we wanted to make an async function that changes things a bit because the useEffect callback cannot be an async function but it has to be inside of the async function itself
+
+now though if we add in a string template literal and we add in a proip of name then we should be putting the depdendency inside of the array because it is now depending on that name, so eslint gets a little unhappy with our empty array in the second argument if we dont 
+
 ______________________________________________
 Prop Changes and Effects
 ______________________________________________
+inside the array if we put in a prop we specify it as the dependency so only when that changes will useEffect run 
+if we pass in one prop but not another that does not depend on it then we will not have a new axios request in our example when we change the color in the react dev tools 
+
 
 ______________________________________________
 useEffect profile search
 ______________________________________________
+showed an example with a form that allows a user to find a profile based on the search term inserted
+
+main take away is to know that useEffect should be used in conjunction with api calls and async functions because we want to make sure everything runs at the proper time , if we dont use useEffect it creates a bit more of a complicated situation because the calls can lag behind other code running 
+
 
 ______________________________________________
 useEffect cleanup
 ______________________________________________
+we can return a function 
+
+if we return a function it will be run as a clean up function 
+
+common examples
+-clearing intervals or timeouts
+-removing an event listener
+-unsubscribing or working with websockets 
+
+if we end a connection with a component 
+
+if we return a function from useEffect it will run when the component unmounts and before that effect runs 
+
+we do not have to have just one useEffect within a component 
+
+we can have multiple 
+
+we can have one that is just returning a cleanup functions and no dependencies and it only runs once the component is unmounted 
+
+short reminder that setInterval returns to us an id which we can use to clear the interval if we pass it in so we want to save it to a variable and then return our cleanup function with that setInterval id so we can clear the interval 
+
 
 ______________________________________________
 useRef
