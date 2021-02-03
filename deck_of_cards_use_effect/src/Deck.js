@@ -80,15 +80,13 @@ const Deck = () => {
             // once we make that api call then we want to copy and add a card to the array of our cards, we will be mapping over these to create the Card components
             setDrawn(drawnCard => [...drawnCard,{id:cardData.code,sourceImage:cardData.image}]);
             // in case we have an error we can just console log it 
-            console.log(cardData)
-            return cardData;
             
         }catch(err){
             console.log(err);
         }
 
         }
-        drawCard();
+        
 
     },[setDrawn]);
 
