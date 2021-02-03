@@ -165,8 +165,28 @@ short reminder that setInterval returns to us an id which we can use to clear th
 ______________________________________________
 useRef
 ______________________________________________
+we are moving to another hook 
+
+useRef is a lot easier to talk about 
+
+it is a pretty straighforward hook 
+
+useRef - returns a mutable object with a key of current whose value is to the initial value passed into the hook 
+
+
+the object is returned and that persists 
+
+Common uses 
+-accessing an underlying DOM element 
+-setting up and clearing timers 
+
 
 ______________________________________________
 useRef Continued
 ______________________________________________
 
+shows an example of how to stop a timer as useRef to avoid the use of global variables 
+
+Should try to avoid using references except where we cant avoid it 
+
+React should control the state of the DOM
