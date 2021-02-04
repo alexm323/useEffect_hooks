@@ -1,5 +1,5 @@
 import './App.css';
-import Deck from './Deck';
+import Deck from './Deck2';
 
 function App() {
   return (

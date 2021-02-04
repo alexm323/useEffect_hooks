@@ -1,9 +1,9 @@
 import React from 'react';
 
-const Card = ({imageSource}) => {
+const Card = ({imageSource,id}) => {
     return (
         <div>
-            <img src={imageSource} />
+            <img src={imageSource} alt={id} />
         </div>
         
     )
