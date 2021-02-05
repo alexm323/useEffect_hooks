@@ -1,111 +1,86 @@
-// import React, {useState,useEffect,useRef} from 'react';
-// import Card from './Card'
-// import axios from 'axios';
-
-// // our api url
-// const BASE_URL = 'http://deckofcardsapi.com/api/deck';
-// // going to make a component that draws child Card components with a couple of props, img and name for the cards
-
-// const Deck = () => {
-//     // need to keep track of a deck using its deck id but first we need to set a deck into the state so we can track it 
-
-//     const [deck,setDeck] = useState(null);
-
-//     // lets get the data for the deck from the API
-//     // we are going to utilize the useEffect hook whenever we have to make an API call 
+import React, { useEffect, useState, useRef } from "react";
+import Card from "./Card";
+import axios from "axios";
 
 
-//     useEffect(() => {
-//         // create an async function so we can await the deck response
-//         async function getNewDeck(){
-//             // await the response and ask for a shuffled deck from the API
-//             let newDeck = await axios.get(`${BASE_URL}/new/shuffle`);
-//             // now we should have our data from the api which comes back in this format
-//             // {
-//             //     "success": true,
-//             //     "deck_id": "3p40paa87x90",
-//             //     "shuffled": true,
-//             //     "remaining": 52
-//             // }
-//             // lets update our state
-//             setDeck(newDeck.data);
-//         }
-//         // now we can call our function so that the deck is set when we render the Deck component 
-//         getNewDeck();
-//         // our only dependency should be the setDeck which most likely will stay static
-//     },[setDeck]);
+const API_BASE_URL = "http://deckofcardsapi.com/api/deck";
 
-//     // lets use useEffect again to draw a card but we need some state for the cards 
-//     // we can keep track of them in an array
-//     const [drawn,setDrawn] = useState([]);
-//     const [currentCard,setCurrentCard] = useState({id:"",image:""});
-//     useEffect(()=> {
-//         // create a function that makes an API call that grabs our card data so we can insert a new Card component with that data to the DOM 
-//         async function drawCard() {
-//             // we need to insert a deck id to let the api which deck we are drawing from , we can destructure this 
-//             let {deck_id} = deck;
-//             // draw using the API
-//             let drawResponse = await axios.get(`${BASE_URL}/${deck_id}/draw/`);
-//             // grab the data for the remaining cards and see if its at 0
-//             let remainingCards = drawResponse.data.remaining;
-//             // no more cards in the deck throw an error
-//             if(remainingCards===0){
-//                 // this feels like Node js again
-//                 throw new Error("There are no more cards in the deck!")
-//             }
-//             // grab the card data from the api which provides the following data for us to use
+/* Deck: uses deck API, allows drawing card at a time. */
 
-//             const cardData = drawResponse.data.cards[0];
-//             console.log(cardData)
-//             // we get this kind of data back , an array of all the cards we drew even if its only 1 card
+function Deck() {
+  const [deck, setDeck] = useState(null);
+  const [drawn, setDrawn] = useState([]);
+  const [autoDraw, setAutoDraw] = useState(false);
+  const timerRef = useRef(null);
 
-//             // {
-//             //     "success": true,
-//             //     "cards": [
-//             //         {
-//             //             "image": "https://deckofcardsapi.com/static/img/KH.png",
-//             //             "value": "KING",
-//             //             "suit": "HEARTS",
-//             //             "code": "KH"
-//             //         },
-//             //         {
-//             //             "image": "https://deckofcardsapi.com/static/img/8C.png",
-//             //             "value": "8",
-//             //             "suit": "CLUBS",
-//             //             "code": "8C"
-//             //         }
-//             //     ],
-//             //     "deck_id":"3p40paa87x90",
-//             //     "remaining": 50
-//             // }
+  /* At mount: load deck from API into state. */
+  useEffect(() => {
+    async function getData() {
+      let d = await axios.get(`${API_BASE_URL}/new/shuffle/`);
+      setDeck(d.data);
+    }
+    getData();
+  }, [setDeck]);
 
-//             // once we make that api call then we want to copy and add a card to the array of our cards, we will be mapping over these to create the Card components
-//             setDrawn(drawnCard => [...drawnCard,{id:cardData.code,sourceImage:cardData.image}]);
-//             // in case we have an error we can just console log it 
-            
-        
+  /* Draw one card every second if autoDraw is true */
+  useEffect(() => {
+    /* Draw a card via API, add card to state "drawn" list */
+    async function getCard() {
+      let { deck_id } = deck;
 
-//         }
-//         drawCard();
-//         console.log(drawn)
+      try {
+        let drawRes = await axios.get(`${API_BASE_URL}/${deck_id}/draw/`);
 
-//     },[drawn]);
+        if (drawRes.data.remaining === 0) {
+          setAutoDraw(false);
+          throw new Error("no cards remaining!");
+        }
 
-//     const cards = drawn.map(card => (
-//         <Card imageSource={card.sourceImage} />
-//     ))
-    
-//     const handleAdd = () => {
-//         setTestState("")
-//     }
+        const card = drawRes.data.cards[0];
 
-//     return (
-//         <div>
-//             <button onClick={handleAdd}>Draw a card</button>
-//             <div>{cards}</div>
-//         </div> 
+        setDrawn(d => [
+          ...d,
+          {
+            id: card.code,
+            name: card.suit + " " + card.value,
+            image: card.image
+          }
+        ]);
+      } catch (err) {
+        alert(err);
+      }
+    }
 
-//     );
-// };
+    if (autoDraw && !timerRef.current) {
+      timerRef.current = setInterval(async () => {
+        await getCard();
+      }, 1000);
+    }
 
-// export default Deck;
+    return () => {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    };
+  }, [autoDraw, setAutoDraw, deck]);
+
+  const toggleAutoDraw = () => {
+    setAutoDraw(auto => !auto);
+  };
+
+  const cards = drawn.map(c => (
+    <Card key={c.id} name={c.name} imageSource={c.image} />
+  ));
+
+  return (
+    <div className="Deck">
+      {deck ? (
+        <button className="Deck-gimme" onClick={toggleAutoDraw}>
+          {autoDraw ? "STOP" : "KEEP"} DRAWING FOR ME!
+        </button>
+      ) : null}
+      <div className="Deck-cardarea">{cards}</div>
+    </div>
+  );
+}
+
+export default Deck;

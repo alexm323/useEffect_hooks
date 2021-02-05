@@ -17,32 +17,43 @@ const Deck2 = () => {
         getNewDeck();
     },[setDeck]);
 
+    const initialRender = useRef(true);
 
-    useEffect(()=> {
-        async function drawCard() {
-            console.log('running drawCard')
-            let {deck_id} = deck;
-            console.log(deck_id)
-            let drawResponse = await axios.get(`${BASE_URL}/${deck_id}/draw/`);
-
-            let remainingCards = drawResponse.data.remaining;
-
-            if(remainingCards===0){
-
-                throw new Error("There are no more cards in the deck!")
+    useEffect(() => {
+        if (initialRender.current) {
+          initialRender.current = false;
+        } else {
+            async function drawCard() {
+                
+                try {
+                    
+                let {deck_id} = deck;
+            
+                let drawResponse = await axios.get(`${BASE_URL}/${deck_id}/draw/`);
+    
+                let remainingCards = drawResponse.data.remaining;
+    
+                if(remainingCards===0){
+    
+                    throw new Error("There are no more cards in the deck!")
+                }
+                const cardData = drawResponse.data.cards[0];
+                console.log(cardData)
+                setCurrentCard(cardData)} 
+                
+                catch (error) {
+                    alert(error)    
+                };
             }
-            const cardData = drawResponse.data.cards[0];
-            console.log(cardData)
-            setCurrentCard(cardData)
+            drawCard();
+            
         }
-        drawCard();
-        console.log(drawn)
-        
-    },[drawn]);
+      }, [drawn]);
 
     const cards = drawn.map(card => (
         <Card key={card.id} id={card.id} imageSource={card.sourceImage} alt={card.id}/>
     ))
+    
     const handleClick = () => {
         setDrawn(drawnCard => [...drawn,{id:currentCard.code,sourceImage:currentCard.image}]);
     }
